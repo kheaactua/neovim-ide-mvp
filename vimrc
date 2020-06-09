@@ -113,8 +113,6 @@ if g:dein_exists && (v:version >= 800 || has('nvim'))
       " " Status bar
       " call dein#add('powerline/powerline')
 
-      call dein#add('rhysd/vim-clang-format')
-
       call dein#add('airblade/vim-gitgutter')
 
       " Display trailing whitespace
@@ -188,22 +186,34 @@ nmap [h <Plug>GitGutterPrevHunk
 " revert it with <Leader>hr.
 """"""""""""""""""""" /Git-Gutter """"""""""""""""""""""""
 
+"""""""""""""""""""""""""""" ALE """""""""""""""""""""""""
+silent if g:dein_exists && dein#check_install('ale') == 0
+   let g:ale_linters = {
+      \ 'cpp': ['clangtidy'],
+      \ 'c': ['clangtidy'],
+      \}
+   let g:ale_fixers={
+      \ 'cpp': ['clang-format'],
+      \ '*': ['remove_trailing_lines', 'trim_whitespace'],
+      \}
 
-""""""""""""""""""" vim-clang-format """""""""""""""""""""
-" Detect clang-format file
-let g:clang_format#detect_style_file = 1
+   let br_extra_options=
+      \ "-target aarch64-unknown-nto-qnx7.0.0
+      \ -fsyntax-only -mlittle-endian
+      \ -isystem ".$QNX_HOST."/usr/lib/gcc/aarch64-unknown-nto-qnx7.0.0/5.4.0/include
+      \ -isystem ".$QNX_HOST."/usr/aarch64-buildroot-nto-qnx/sysroot/usr/include/c++/v1
+      \ -isystem ".$QNX_HOST."/usr/aarch64-buildroot-nto-qnx/sysroot/usr/include"
+   let g:ale_cpp_clangtidy_extra_options='-- ' . br_extra_options
 
-" Key mappings for clang-format, to format source code:
-if has('unix')
-   autocmd FileType c,cpp,h,hpp nnoremap <buffer><Leader>fo :pyf /usr/share/clang/clang-format-10/clang-format.py<CR>
-   autocmd FileType c,cpp,h,hpp nnoremap <buffer><Leader>f :<C-u>ClangFormat<CR>
-   autocmd FileType c,cpp,h,hpp vnoremap <buffer><Leader>f :ClangFormat<CR>
-   autocmd FileType c,cpp,objc map <buffer><Leader>x <Plug>(operator-clang-format)
+   " let g:ale_c_clangtidy_executable = g:clang_path . '/bin/clang-tidy'
+   " Set up mapping to move between errors
+   nmap <silent> [w <Plug>(ale_previous_wrap)
+   nmap <silent> ]w <Plug>(ale_next_wrap)
 
-   " map <leader>f :pyf /usr/share/clang/clang-format.py<CR>
-
-   nmap <Leader>C :ClangFormatAutoToggle<CR>
+   " Run clang-format
+   autocmd FileType c,cpp,h,hpp vnoremap <buffer><Leader>f :ALEFix<CR>
 endif
+""""""""""""""""""""""""""" /ALE """""""""""""""""""""""""
 
 " Have vim reload a file if it has changed outside
 " of vim:
@@ -358,7 +368,6 @@ silent if has('unix') && g:dein_exists && dein#check_install('fzf') == 0
    endif
 endif
 """"""""""""""""""""""""" /fzf """""""""""""""""""""""""""
-
 
 """"""""""""""""""""" Generate UUID """"""""""""""""""""""""
 if has('unix')
