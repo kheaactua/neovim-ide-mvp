@@ -1,6 +1,0 @@
-%compile_commands.json
--target
-aarch64-linux-gnu
--system/src/buildroot/output/host/usr/lib/gcc/aarch64-unknown-nto-qnx7.0.0/5.4.0/include
--isystem/src/buildroot/output/host/usr/aarch64-buildroot-nto-qnx/sysroot/usr/include/c++/v1
--isystem/src/buildroot/output/host/usr/aarch64-buildroot-nto-qnx/sysroot/usr/include
